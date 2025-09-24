@@ -25,6 +25,7 @@ Upon completion of the course, students should be able to:
 - [Coursework](docs/coursework.md)
 - [Grading](docs/grading.md)
 - [Software Tools](docs/software.md)
-- [Class Policies](docs/policies.md)
+- [AI Policy](docs/gen-ai.md)
+- [Code of Conduct](docs/policies.md)
 - [Readings](docs/readings.md)
 - [Tutorials](docs/tutorials.md)
