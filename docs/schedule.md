@@ -1,3 +1,5 @@
+## Course Schedule
+
 ### Week 1: Introduction
 
 Tuesday - Value of data visualization

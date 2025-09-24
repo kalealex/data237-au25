@@ -1,3 +1,5 @@
+## Grading and Evaluation
+
 We use a form of grading known as *specifications grading* in this course. The goal of specifications grading is to help students focus on their mastery of the material and identify areas for improvement as the quarter progresses. Students are encouraged to focus on skills, not on scores.
 
 Final grades will be determined based on participation, assignments, and the project.

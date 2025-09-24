@@ -1,4 +1,5 @@
-# DATA 2x700 Tutorials
+## DATA 23700 Tutorials
+
 This is where we'll post links to tutorials, examples, and software tools separated by topic.
 
 ### Getting started with computational notebooks
