@@ -13,7 +13,7 @@ We will not be relying on EdTech systems like EdStem. We will use Canvas only to
 
 ### Class sessions
 
-We will hold class **Tuesday and Thursday 12:30 PM - 1:50 PM in __**.
+We will hold class **Tuesday and Thursday 12:30 PM - 1:50 PM in Ryerson 276**.
 
 ### Office hours
 
