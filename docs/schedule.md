@@ -12,7 +12,7 @@ Thursday - Grammar of graphics
 
 - Participation: Exercise 1
 
-**Friday, October 3 - Syllabus Quiz and Exercise 0 (Environment setup) due!**
+**Friday, October 3 - Exercise 0 (Environment setup) due!**
 
 
 ### Week 2: Fundamentals of visualization design
