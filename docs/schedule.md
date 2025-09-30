@@ -41,7 +41,7 @@ Tuesday - Color
 Thursday - Visualizing data in maps 
 
 - Participation: Exercise 4
-- Assignment 3 (prev A2) released
+- Assignment 3 released
 
 **Friday, October 17 - Exercise 2 (Literate programming) and Exercise 3 (Critique) due!**
 
@@ -52,8 +52,8 @@ Tuesday - Interaction and Animation (two part lecture)
 
 Thursday - Making data interactive
 
-- Participation: Exercise 5 (prev Ex6: trying d3)
-- Assignment 4 (prev A3) released
+- Participation: Exercise 5
+- Assignment 4 released
 
 **Friday, October 24 - Exercise 4 (Cartography) due!**
 
@@ -66,7 +66,7 @@ Tuesday - Uncertainty visualization
 
 Thursday - Visualizations as model checks
 
-- Participation: Exercise 6 (prev Ex8: model checking)
+- Participation: Exercise 6
 
 **Friday, October 31 - Exercise 5 (D3) due!**
 
@@ -107,7 +107,7 @@ Tuesday - Visualization as disclosure/Game setup
 
 Thursday - Visualization authoring game
 
-- Participation: Exercise 9 (prev Ex7: game)
+- Participation: Exercise 9
 
 **Friday, November 21 - Exercise 8 (Alt text) due!**
 
@@ -120,7 +120,7 @@ Tuesday - Writing swap
 
 Thursday - Visualization for machine learning interpretability 
 
-- Participation: Exercise 11 (prev Ex9: interpretML)
+- Participation: Exercise 11
 - Final day for resubmissions!
 
 **Friday, December 5 - Exercise 9 (Game) and Exercise 10 (Writing swap) due!**
