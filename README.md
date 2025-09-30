@@ -1,5 +1,8 @@
 # DATA 23700
 
+**Link to Course Website:** https://kalealex.github.io/data237-au25/
+**Link to Canvas:** https://canvas.uchicago.edu/courses/66904
+
 This course, the data visualization offering for students in the Data Science major, helps students build core competancies for communicating with data, including generating visualizations programmatically, writing about design and analysis choices, and learning principles and procedures for rigorous work in data science. DATA 23700 introduces students to visualization design, including theoretical frameworks for reasoning about chart construction, perceptual principles, and considerations for use of color, mapping, making data interactive, and conveying uncertainty. DATA 23700 also requires students to engage various other skill sets important in data science such as technical reading and writing, data wrangling, statistical modeling, storytelling, and producing shareable, reproducible analysis notebooks.
 
 Completion of or placement out of DATA 11900 or CMSC 14100 is a prerequisite for taking this course. Additionally, DATA 12000 and DATA 21300 should either be completed prior to registration or taken concurrently.
