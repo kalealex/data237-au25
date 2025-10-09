@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        /* divs */
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        svg {
+            font: 10px sans-serif;
+            border: 1px solid maroon;
+        }
+
+        /* axis format */
+        .axis {
+            shape-rendering: crispEdges;
+        }
+
+        .label {
+            font: 14px sans-serif;
+            fill: black;
+        }
+
+        /* brush */
+        .brushed {
+            fill: #ff3399;
+            stroke: #8e1b54;
+            opacity: 1.0;
+        }
+
+        .non-brushed {
+            fill: #404040;
+            opacity: 0.5;
+        }
+    </style>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+    <div class="container" >
+        <h2>D3 tutorial</h2>
+    </div>
+    <div class="container">
+        <div id="scatterplot-container"></div>
+        <div id="bar-container"></div>
+    </div>
+    
+
+    <!-- <script src="static-start.js"></script> -->
+    <script src="reference.js"></script>
+</body>
