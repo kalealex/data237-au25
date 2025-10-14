@@ -53,6 +53,7 @@ Tuesday - Interaction and Animation (two part lecture)
 Thursday - Making data interactive
 
 - Participation: Exercise 5
+- Flipped classroom: pre-recorded lecture introducing D3
 - Assignment 4 released
 
 **Friday, October 24 - Exercise 4 (Cartography) due!**
