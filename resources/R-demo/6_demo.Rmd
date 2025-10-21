@@ -1,0 +1,354 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## What is an RMarkdown Notebook?
+An [R Markdown](http://rmarkdown.rstudio.com) Notebook is a file format that allows you to write in markdown and contains chunks of embedded R code. Similar to Jupyter Notebooks that you have used in the past, when you execute code within this notebook, the results appear beneath the code. Such notebooks help support literate programming. Try executing a code chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. To render the entire file as an HTML, Use the “Preview” button and choose "Knit to HTML".
+
+## Goals of this Demo
+
+The main goal of this demo is for you to learn about model checking.
+Model checking is a visual method for comparing your data with the output that a statistical model produces in order to diagnose errors and improve models.
+It is an important way to establish trust in the model's assumptions and predictions.
+
+We often use visualizations for model checks, i.e. to investigate whether your model makes sense. By using visualization, we can ask:
+
+1. Do the assumptions about the model hold?
+2. Are the model predictions sensible?
+3. Are conclusions about effects robust?
+
+In this demo and its corresponding exercise, we try to answer these questions through quantifying and visualizing two types of uncertainties:
+
+1. **Predictive uncertainty** where you estimate the anticipated variability in outcomes in new measurements (variability in new outcomes)
+2. **Inferential uncertainty** where you estimate the error in a statistic like the mean (uncertainty in parameters or summariers)
+
+Let us take an example to make this more concrete:
+Imagine you want to find the measure the heights of adults living in Chicago. You collect a sample of 200 people and measure their heights.
+Inferential uncertainty is about estimating the *average height* - how sure you are about a summary of the entire population based on your sample. In this case, it's the uncertainty around the average height of all people in Chicago.
+It is measured using standard error. Inferential uncertainty can be reduced by collecting more samples.
+
+Predictive uncertainty is about estimating the *height of an individual* - how sure you are about the height of a single, new individual you haven't measured yet.
+It is measured using standard deviation and does not depend on the sample size.
+
+If this seems a little confusing, it is because it is. [Experts](https://www.pnas.org/doi/abs/10.1073/pnas.2302491120) as well as 
+[lay people](https://dl.acm.org/doi/abs/10.1145/3313831.3376454) struggle with interpreting and differentiating between these two uncertainties but working through this exercise should help you get a better sense of how to create and understand these concepts. 
+
+### Step 1: Install and import the libraries we will use throughout the notebook
+
+```{r}
+# Run this cell if you do not have the libraries installed. You only need to run this once.
+install.packages("readr")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggeffects")
+install.packages("performance")
+install.packages("ggdist")
+install.packages("tidyr")
+install.packages("patchwork")
+install.packages("tidybayes")
+#install.packages("glmmTMB")
+
+```
+
+```{r}
+# import libraries
+
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(brms)
+library(ggeffects)
+library(performance)
+library(tidybayes)   
+library(ggdist)     
+library(patchwork)
+# library(glmmTMB)
+
+```
+
+### Step 2: Import our dataset and explore a few variables
+```{r}
+# Download the dataset and change the path if needed
+
+df <- read_csv("../data/insurance.csv")
+head(df)
+summary(df)
+```
+
+This dataset contains records about how much people pay for healthcare (charges column) and factors (bmi, age, children, smoker, region) that might influence the charges a person pays.
+We want to model how much a person is charged for healthcare depends on factors such as bmi, age, whether they smoke, how many children they have, where they live, etc.
+
+Before we get into fitting a model, it is always a good idea to explore the dataset using visualizations. 
+We will use the ggplot library to plot the visualizations.
+
+```{r}
+
+p_age <- ggplot(df, aes(age)) + 
+  geom_histogram(bins = 20, fill = "steelblue") +
+  labs(title = "Age", x = "age", y = "Count") + theme_minimal()
+
+p_bmi <- ggplot(df, aes(bmi)) + 
+  geom_histogram(bins = 20, fill = "steelblue") +
+  labs(title = "BMI", x = "bmi", y = "Count") + theme_minimal()
+
+p_children <- ggplot(df, aes(factor(children))) + 
+  geom_bar(fill = "steelblue") +
+  labs(title = "Children", x = "children", y = "Count") + theme_minimal()
+
+p_charges <- ggplot(df, aes(charges)) + 
+  geom_histogram(bins = 30, fill = "steelblue") +
+  labs(title = "Charges", x = "charges", y = "Count") + theme_minimal()
+
+p_sex <- ggplot(df, aes(sex)) + 
+  geom_bar(fill = "steelblue") +
+  labs(title = "Sex", x = "sex", y = "Count") + theme_minimal()
+
+p_smoker <- ggplot(df, aes(smoker)) + 
+  geom_bar(fill = "steelblue") +
+  labs(title = "Smoking status", x = "smoker", y = "Count") + theme_minimal()
+
+p_region <- ggplot(df, aes(region)) + 
+  geom_bar(fill = "steelblue") +
+  labs(title = "Region", x = "region", y = "Count") + theme_minimal() +
+  theme(axis.text.x = element_text(angle = 25, hjust = 1))
+
+# Join into a single view (patchwork library)
+combined_plot <- (p_age | p_bmi) /
+            (p_children | p_charges)/
+            (p_sex | p_smoker | p_region)
+
+combined_plot
+
+```
+
+We can also look at the relationship between charges and other variables
+
+```{r}
+# charges and age
+plot1 <- ggplot(df, aes(sex, charges)) +
+ geom_point(alpha = 0.3) +
+  theme_minimal()
+
+# charges, bmi and smoking status
+plot2 <- ggplot(df, aes(x = bmi, y = charges, color = smoker)) +
+  geom_point() +
+  ggtitle("Relationship between BMI and Charges based on Smoking Status")
+
+plot1 + plot2
+
+# you can try visualizing other variables here
+```
+
+These visualizations can help give us a sense of how different variables can influence the charges a person pays.
+
+### Step 3: Preprocess the data before we model
+
+Before can start to model our data, we need to modify the variables. Mostly casting discrete variables as factors, so the model uses dummy variables for them. Also, centering continuous variables. 
+
+```{r}
+model_df = df |> mutate(
+  # factors
+  sex = as.factor(sex),
+  smoker = as.factor(smoker),
+  region = as.factor(region),
+  # centered continuous predictors
+  c_age = age - mean(age),
+  c_bmi = bmi - mean(bmi),
+  # fake y axis var
+  y = 0
+)
+
+# Note that we do not center the variable "charges" as we want to predict the value of charges using our model in its original units
+
+head(model_df)
+
+```
+### Step 4: Fit a Model
+**For Exercise 6 you will not be asked to fit a model. We will provide a fitted model for you to visualize.**
+However, it is useful to know the process that goes behind fitting a model.
+
+Below, we walk you though an example.
+We will use brms, an R package built to fit Bayesian regression models.  
+One common model to start with is the normal model. However, it can take some iterations to identify what is the right model for your data.
+
+
+
+```{r}
+m_norm = brm(
+  bf("charges ~ 1"), #bf is used to specify the formula for your model. Here, we use an intercept-only (~1) model, one which uses no predictors
+  family = "normal", # type of model family
+  data = model_df, # our dataframe as input
+  iter = 2000, warmup = 1000, chains = 2 #some parameters for MCMC 
+)
+
+```
+To see how well our model has fit, we need to run some diagnostics. 
+```{r}
+summary(m_norm)
+```
+We should look at different parameters above to see how our model performs. These parameters give us insights on model convergence.
+1. **Rhat** describes how well the chains have converged. Rhat = 1.00 means that the chains are well-mixed.
+2. **Bulk_ESS** describes the sampling efficiency in the bulk of the posterior. 
+3. **Tail_ESS** describes the sampling efficiency in the tail of the posterior.
+```{r}
+plot(m_norm)
+```
+
+```{r}
+pairs(m_norm)
+```
+Look at trace mixing and multicolinearity
+
+The model looks okay, but how do we know if its predictions make sense?
+To check if the model makes sense, **we will plot the model predictions against the raw data.**
+This is called as **posterior predictive check**, it helps you see if your model is generating realistic predictions.
+```{r}
+
+model_df |>
+  dplyr::select(charges) |>
+  mutate(y = 0) |>
+  add_predicted_draws(m_norm, ndraws = 200) |>
+  ggplot(aes(x = .prediction, y = y)) +
+  stat_slab(justification = -0.02, fill = "steelblue") +
+  stat_dots(aes(x = charges), quantiles = 50, side = "bottom", scale = 0.75, data = model_df) +
+  theme_minimal()
+```
+This visualization highlights the problem with using a normal family to model our data.
+The normal model predicts non-positive values for charges. However, the charges column in our dataset contains only non-zero positive values.
+You can go back to the charges histogram and observe that we do not have any negative or zero values.
+You can also run `sum(model_df$charges <= 0, na.rm = TRUE)` to see that the charges column has no negative or zero values.
+
+
+Instead of using no predictors as we did in the above model, we can incorporate predictors from the dataset that can help us predict the **outcome variable** - charges. 
+Generally, to identify these predictor variables of interest, we use visualizations as a tool for exploration. 
+Based on the exploratory visualizations we saw above, the **predictor variables we can work with are bmi, age, region and smoker**.
+
+
+As the normal model predicts negative or zero values, we should use another family instead, one that predicts non-zero positive values.
+
+### Step 5: Fit a better model
+
+Now, we choose the lognormal family as charges are positive.
+For this demo and the exercise, we will work with four predictors of interest: age, bmi,region and smoking status
+
+```{r}
+# this is the model you will use in the exercise as well
+m_main = brm(
+  bf("charges ~ c_bmi + smoker + c_age + region"),
+  family = lognormal(),
+  data = model_df,
+  iter = 2000, warmup = 1000, chains = 2
+)
+
+#summary(m_main)
+```
+```{r}
+# Diagnostics plots are hard to read with many variables 
+#pair(m_main)
+#plot(m_main)
+
+```
+To check if the model makes sense, we will again plot the model predictions against the raw data.
+Remember that this is a different model than what we visualized earlier. 
+```{r}
+model_df |>
+  dplyr::select(charges, c_bmi, smoker, c_age, region) |>
+  mutate(y = 0) |>
+  add_predicted_draws(m_main, ndraws = 200) |>
+  ggplot(aes(x = .prediction, y = y)) +
+  stat_slab(justification = -0.02, fill = "steelblue") +
+  stat_dots(aes(x = charges), quantiles = 50, side = "bottom", scale = 0.75, data = model_df) +
+  theme_bw()
+```
+As you can see, this model makes much better predictions comapred to `m_norm` but it is not perfect. 
+We thus need to check whether we've accounted for important structure in our data and how we can improve it. 
+We do this for every predictor we have included in the model. Let us start with age.
+
+### Step 6: Visualize predictive uncertainty
+```{r}
+model_df |>
+  dplyr::select(charges, c_bmi, smoker, c_age, region) |>
+  add_predicted_draws(m_main, ndraws = 200) |>
+  ggplot(aes(x = c_age, y = .prediction)) +
+  stat_lineribbon(.width = c(.50, .80, .95)) +
+  scale_fill_brewer() +
+  geom_point(aes(y = charges), alpha = 0.4, data = model_df) +
+  theme_bw()
+```
+For the exercise accompanying this demo, **you are expected to create three predictive uncertainty visualizations like the one shown above.**
+You can either do this for each predictor in your model (except age) or/and you can visualize potential interaction such as charges ~ c_bmi * smoker * c_age.
+
+### Step 7: Visualize inferential uncertainty
+
+Now that we have predictors(c_bmi, smoker, c_age, region) in our model, we want ways to summarize the relationship
+between predictors and the outcome variable. For example, this is the kind of inference
+we typically capture in a t-test, confidence interval, or trend line. Our approach here emphasizes the visualization of uncertainty about the model’s conditional expectations. Conditional expectations in this case are the average amount of insurance charges under specific conditions.
+
+*The goal here is to understand how well you've estimated a parameter or a mean*
+
+Therefore, *marginalization* plays a very important role in calculating inferential uncertainty.
+We marginalize by averaging the effect we are interested in looking 
+at over the conditions in the model that we do not want to compare. 
+For example, if we are interested in studying the effect of age on charges, we average that over bmi, smoker and region.
+
+Without marginalization, we can only ask about relationships that specify values for every predictor in our model (bmi, smoker, age, region)
+With marginalization we can ask: "What's the average effect of smoking across all types of people in my dataset?"
+Marginalization gives you uncertainty about the population average effect, not just uncertainty about one specific subgroup.
+We do this for inferential uncertainty to get a summary of the expected/average impact of a predictor (more generalization), whereas for predictive uncertainty, we wanted to see all the variation in possible outcomes that the model had learned.
+
+To get a better understanding of inferential uncertainty and why marginalization is very important, see the following plots. 
+Here, we use the **ggpredict function from the ggeffects library** where the parameter "terms" defines which variable we wish to marginalize.
+
+```{r}
+pred_cond <- ggeffects::ggpredict( m_main, terms = "smoker", condition = list(c_bmi = 10, c_age = 20, region = "southwest")) 
+pred_marg <- ggeffects::ggpredict(m_main, terms = "smoker" ) 
+
+
+( plot(pred_cond) + ggtitle("Lognormal Model: Conditional (c_bmi = 10, c_age = 20, region = southwest)") ) / ( plot(pred_marg) + ggtitle("Lognormal Model: Marginalized") )
+```
+Looking at both the plots above, you can see how marginalization provides information about the avergae effect of smoking status on charges.
+
+You can either use the **ggpredict library** or the **tidybayes library** to create inferential uncertainty visualizations. 
+While the ggpredict library offers a simpler way to create visualizations, it is less flexible.
+```{r}
+pred_smoker <- ggpredict(m_main, terms = "smoker")
+
+ggplot(pred_smoker, aes(x = x, y = predicted)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), 
+                width = 0.1, position = position_nudge(x = -0.1)) +
+  geom_point(position = position_nudge(x = -0.1)) +
+  geom_point(data = model_df, aes(x = smoker, y = charges), alpha = 0.4) +
+  theme_bw()
+```
+
+The **tidybayes library** on the other hand offers more flexibility, such as intervals (50, .80, .95).
+
+One critical thing we're going to do below is show the *expected value of predictions*,
+which is distinct from showing the predictions themselves. To do this, we will rely
+on the `tidybayes` function `add_epred_draws` rather than `add_predicted_draws`,
+which we used above. You can find an explanation of this syntax here: https://mjskay.github.io/tidybayes/reference/add_predicted_draws.html
+```{r}
+# precompute a data grid for next few vises
+# this is a very large obj to hold in memory, so it's best to run this code only once
+# using `data_grid` instead of `select` now, which crosses all values of each predictor
+predictor_grid = model_df |>
+  modelr::data_grid(c_bmi, smoker, c_age, region)
+
+
+predictor_grid |>
+  add_epred_draws(m_main, ndraws = 200) |>
+  group_by(smoker, .draw) |>             # marginalization
+  summarise(.epred = mean(.epred)) |>   # marginalization
+  ggplot(aes(x = smoker, y = .epred)) +  
+  stat_interval(.width = c(.50, .80, .95), position = position_nudge(x = -0.1)) + 
+  scale_color_brewer() +                     
+  geom_point(aes(y = charges), alpha = 0.4, data = model_df) +
+  theme_bw()
+```
+
+You can find some nice examples of inferential uncertainty visualization with `ggdist`
+here: http://mjskay.github.io/tidybayes/articles/tidy-brms.html#posterior-means-and-predictions
+
+For the exercise accompanying this demo, **you are expected to create three inferential uncertainty visualizations for each predictor in your model (except smoker) (either using ggefects or tidybayes) like the one shown above.**

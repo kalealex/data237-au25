@@ -1,0 +1,177 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+#### *Due November 7*. Fill in this file by following the PROMPTS below, `knit` a PDF of the document, and upload the PDF to Gradescope.
+
+To complete this exercise, you should use the model we provide below to:
+1. Create three visualizations that represent predictive uncertainty 
+2. Create three visualizations that represent inferential uncertainty
+
+### Lets start by installing and importing the libraries we will use throughout the notebook. 
+If you have run the demo notebook, skip this cell.
+```{r}
+# Run this cell if you do not have the libraries installed. You only need to run this once.
+install.packages("readr")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggeffects")
+install.packages("performance")
+install.packages("ggdist")
+install.packages("tidyr")
+install.packages("patchwork")
+install.packages("tidybayes")
+#install.packages("glmmTMB")
+
+```
+
+```{r}
+# import libraries
+
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(brms)
+library(ggeffects)
+library(performance)
+library(tidybayes)   
+library(ggdist)     
+library(patchwork)
+# library(glmmTMB)
+
+```
+
+### Now, lets import our dataset. To explore the dataset in more depth, see the demo notebook.
+```{r}
+# Download the dataset and change the path if needed
+
+df <- read_csv("../data/insurance.csv")
+head(df)
+summary(df)
+```
+
+### Preprocess the data before we model
+
+Before can start to model our data, we modify the variables. Mostly casting discrete variables as factors, so the model uses dummy variables for them. Also, centering continuous variables. 
+
+```{r}
+model_df = df |> mutate(
+  # factors
+  sex = as.factor(sex),
+  smoker = as.factor(smoker),
+  region = as.factor(region),
+  # centered continuous predictors
+  c_age = age - mean(age),
+  c_bmi = bmi - mean(bmi),
+  # fake y axis var
+  y = 0
+)
+
+# Note that we do not center the variable "charges" as we want to predict the value of charges using our model in its original units
+
+head(model_df)
+
+```
+### Modeling
+Use the model below for visualizing predictive and inferential uncertainty.
+To learn more about modeling, refer to the demo notebook.
+```{r}
+m_main = brm(
+  bf("charges ~ c_bmi + smoker + c_age + region"),
+  family = lognormal(),
+  data = model_df,
+  iter = 2000, warmup = 1000, chains = 2
+)
+```
+
+For this exercise, you are expected to create three predictive uncertainty visualizations like the one shown in the demo notebook.
+You can either do this for each predictor in your model (except age) or/and you can visualize potential interaction such as charges ~ c_bmi * smoker * c_age.
+
+## Add the code for the three predcitive uncertainty visualizatiosn below
+
+Hint: For discrete variables, use stat_interval() instead of stat_lineribbon().
+
+```{r}
+# PROMPT: Code for plot 1 goes here
+```
+
+```{r}
+# PROMPT: Code for plot 2 goes here
+```
+
+```{r}
+# PROMPT: Code for plot 3 goes here
+```
+
+## Inferential Uncertainty
+
+As mentioned in the demo notebook,*the goal of inferential uncertainty is to describe how well you've estimated a parameter or a mean*
+
+Therefore, *marginalization* plays a very important role in calculating inferential uncertainty.
+We marginalize by averaging the effect we are interested in looking 
+at over the conditions in the model that we do not want to compare. 
+For example, if we are interested in studying the effect of age on charges, we average that over bmi, smoker and region.
+**When you want to visualize inferential uncertainty, you have to marginalize.**
+
+You can either use **ggeffects** or **tidybayes** to create the visualizations.
+
+To use ggeffects, refer to the syntax below.
+
+```{r}
+pred_smoker <- ggpredict(m_main, terms = "smoker")
+
+ggplot(pred_smoker, aes(x = x, y = predicted)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), 
+                width = 0.1, position = position_nudge(x = -0.1)) +
+  geom_point(position = position_nudge(x = -0.1)) +
+  geom_point(data = model_df, aes(x = smoker, y = charges), alpha = 0.4) +
+  theme_bw()
+
+```
+
+To use tidybayes, refer to the syntax below.
+One critical thing we're going to do below is show the *expected value of predictions*,
+which is distinct from showing the predictions themselves. To do this, we will rely
+on the `tidybayes` function `add_epred_draws` rather than `add_predicted_draws`,
+which we used above. You can find an explanation of this syntax here: https://mjskay.github.io/tidybayes/reference/add_predicted_draws.html
+```{r}
+# precompute a data grid for next few vises
+# this is a very large obj to hold in memory, so it's best to run this code only once
+# using `data_grid` instead of `select` now, which crosses all values of each predictor
+predictor_grid = model_df |>
+  modelr::data_grid(c_bmi, smoker, c_age, region)
+
+
+predictor_grid |>
+  add_epred_draws(m_main, ndraws = 200) |>
+  group_by(smoker, .draw) |>             # marginalization
+  summarise(.epred = mean(.epred)) |>   # marginalization
+  ggplot(aes(x = smoker, y = .epred)) +  
+  stat_interval(.width = c(.50, .80, .95), position = position_nudge(x = -0.1)) + 
+  scale_color_brewer() +                     
+  geom_point(aes(y = charges), alpha = 0.4, data = model_df) +
+  theme_bw()
+```
+
+You can find some nice examples of inferential uncertainty visualization with `ggdist`
+here: http://mjskay.github.io/tidybayes/articles/tidy-brms.html#posterior-means-and-predictions
+
+
+For this exercise, you are expected to create three inferential uncertainty visualizations for each predictor in your model (except smoker) (either using ggeffects or tidybayes). Refer to the demo notebook for more information on how to use these libraries.
+
+## Add the code for the three inferential uncertainty visualizations below
+Hint: For discrete variables, use stat_interval() instead of stat_lineribbon().
+
+
+```{r}
+# PROMPT: Code for plot 1 goes here
+```
+
+```{r}
+# PROMPT: Code for plot 2 goes here
+```
+
+```{r}
+# PROMPT: Code for plot 3 goes here
+```
