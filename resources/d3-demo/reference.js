@@ -31,7 +31,7 @@ let scatterData = [], // inclass: add
     xScaleBar,
     yScaleBar,
     brushRange, // inclass: add
-    selectedCly = []; // inclass: add
+    selectedCyl = []; // inclass: add
 
 d3.csv("cars.csv")
     .then(function (data) {
@@ -199,12 +199,12 @@ function brushFxn(event) { // inclass: add
 function clickFxn(event) { // inclass: add
     let clickedCly = +event.target.__data__.cyl;
 
-    if (!selectedCly.some((e) => e == clickedCly)) {
-        selectedCly.push(clickedCly);
-        selectedCly.sort();
+    if (!selectedCyl.some((e) => e == clickedCly)) {
+        selectedCyl.push(clickedCly);
+        selectedCyl.sort();
     } else {
-        let idx = selectedCly.indexOf(clickedCly);
-        selectedCly.splice(idx, 1);
+        let idx = selectedCyl.indexOf(clickedCly);
+        selectedCyl.splice(idx, 1);
     }
 
     // render changes to charts in real time
@@ -214,14 +214,14 @@ function clickFxn(event) { // inclass: add
 function selectionFilter(d) { // inclass: add
     // checks whether each point meets the current selection criteria
     // get only points inside of brush AND in selected set of cyl values
-    if (brushRange && selectedCly.length > 0) {
+    if (brushRange && selectedCyl.length > 0) {
         return (brushRange.x0 <= d.hp && brushRange.x1 >= d.hp && 
             brushRange.y0 <= d.mpg && brushRange.y1 >= d.mpg &&
-            selectedCly.some((e) => e == d.cyl));
+            selectedCyl.some((e) => e == d.cyl));
     } else if (!brushRange) {
         // use brush only if it's active
-        return(selectedCly.some((e) => e == d.cyl));
-    } else if (selectedCly.length == 0) {
+        return(selectedCyl.some((e) => e == d.cyl));
+    } else if (selectedCyl.length == 0) {
         return(brushRange.x0 <= d.hp && brushRange.x1 >= d.hp && 
             brushRange.y0 <= d.mpg && brushRange.y1 >= d.mpg);
     } else {
@@ -251,7 +251,7 @@ function update() { // inclass: add
         .on("click", clickFxn);
 
     // text indicators for selections
-    console.log(brushRange, selectedCly);
+    console.log(brushRange, selectedCyl);
     if (!brushRange) {
         scatterSvg.selectAll(".brush-indicator")
             .remove();
@@ -262,7 +262,7 @@ function update() { // inclass: add
             .append("text")
             .text("brush active");
     }
-    if (selectedCly.length == 0) {
+    if (selectedCyl.length == 0) {
         barSvg.selectAll(".pointer-indicator")
             .remove();
     } else {
