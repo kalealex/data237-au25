@@ -9,7 +9,8 @@ The goals of this class are to help students learn the essentials of data visual
 - Students may ask generative AI to review their work (e.g., giving feedback on code or writing, helping to diagnose bugs in code or issues with the flow of a written argument). If generative AI suggests an alternative, the student should use this to inform their own thinking and then manually revise their own solution.
 
 *The following are NOT permissible uses of generative AI*:
+
 - Students may not use generative AI for any part of any write-up, including analysis or design rationales (you must describe what you did with your own words).
 - Generating more than 5 lines of code at a time from a generative model is not allowed.
 - The generative model should not be used to solve the main intellectual aspect of any coursework, such as proposing a project idea or a solution to assigments.
-- Presenting the outputs of generative AI as one’s own work, without explicit citation and acknowledgment of what specifically was used from such models is not allowed. This includes presenting AI-generated code or writing revisions as a students own work.
+- Presenting the outputs of generative AI as one’s own work, without explicit citation and acknowledgment of what specifically was used from such models is not allowed. This includes presenting AI-generated code or revisions to a piece of writing as a student's own work.
