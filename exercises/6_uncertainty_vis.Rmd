@@ -2,6 +2,7 @@
 title: "R Notebook"
 output: html_notebook
 ---
+
 #### *Due November 7*. Fill in this file by following the PROMPTS below, `knit` a PDF of the document, and upload the PDF to Gradescope.
 
 To complete this exercise, you should use the model we provide below to:
@@ -9,7 +10,9 @@ To complete this exercise, you should use the model we provide below to:
 2. Create three visualizations that represent inferential uncertainty
 
 ### Lets start by installing and importing the libraries we will use throughout the notebook. 
+
 If you have run the demo notebook, skip this cell.
+
 ```{r}
 # Run this cell if you do not have the libraries installed. You only need to run this once.
 install.packages("readr")
@@ -43,6 +46,7 @@ library(patchwork)
 ```
 
 ### Now, lets import our dataset. To explore the dataset in more depth, see the demo notebook.
+
 ```{r}
 # Download the dataset and change the path if needed
 
@@ -73,9 +77,12 @@ model_df = df |> mutate(
 head(model_df)
 
 ```
+
 ### Modeling
+
 Use the model below for visualizing predictive and inferential uncertainty.
 To learn more about modeling, refer to the demo notebook.
+
 ```{r}
 m_main = brm(
   bf("charges ~ c_bmi + smoker + c_age + region"),
@@ -86,7 +93,7 @@ m_main = brm(
 ```
 
 For this exercise, you are expected to create three predictive uncertainty visualizations like the one shown in the demo notebook.
-You can either do this for each predictor in your model (except age) or/and you can visualize potential interaction such as charges ~ c_bmi * smoker * c_age.
+You can either do this for each predictor in your model or/and you can visualize potential interactions such as charges ~ c_bmi * smoker * c_age.
 
 ## Add the code for the three predcitive uncertainty visualizatiosn below
 
@@ -106,13 +113,13 @@ Hint: For discrete variables, use stat_interval() instead of stat_lineribbon().
 
 ## Inferential Uncertainty
 
-As mentioned in the demo notebook,*the goal of inferential uncertainty is to describe how well you've estimated a parameter or a mean*
+As mentioned in the demo notebook, *the goal of inferential uncertainty is to describe how well you've estimated a population parameter* (e.g., the average level of polution in the entire ocean was the example from lecture).
 
 Therefore, *marginalization* plays a very important role in calculating inferential uncertainty.
 We marginalize by averaging the effect we are interested in looking 
 at over the conditions in the model that we do not want to compare. 
 For example, if we are interested in studying the effect of age on charges, we average that over bmi, smoker and region.
-**When you want to visualize inferential uncertainty, you have to marginalize.**
+**When you want to visualize inferential uncertainty, you should marginalize.**
 
 You can either use **ggeffects** or **tidybayes** to create the visualizations.
 
@@ -135,6 +142,7 @@ One critical thing we're going to do below is show the *expected value of predic
 which is distinct from showing the predictions themselves. To do this, we will rely
 on the `tidybayes` function `add_epred_draws` rather than `add_predicted_draws`,
 which we used above. You can find an explanation of this syntax here: https://mjskay.github.io/tidybayes/reference/add_predicted_draws.html
+
 ```{r}
 # precompute a data grid for next few vises
 # this is a very large obj to hold in memory, so it's best to run this code only once
@@ -157,12 +165,11 @@ predictor_grid |>
 You can find some nice examples of inferential uncertainty visualization with `ggdist`
 here: http://mjskay.github.io/tidybayes/articles/tidy-brms.html#posterior-means-and-predictions
 
-
 For this exercise, you are expected to create three inferential uncertainty visualizations for each predictor in your model (except smoker) (either using ggeffects or tidybayes). Refer to the demo notebook for more information on how to use these libraries.
 
 ## Add the code for the three inferential uncertainty visualizations below
-Hint: For discrete variables, use stat_interval() instead of stat_lineribbon().
 
+Hint: For discrete variables, use stat_interval() instead of stat_lineribbon().
 
 ```{r}
 # PROMPT: Code for plot 1 goes here
