@@ -23,14 +23,16 @@ Students seeking help with concepts or coursework should plan to attend office h
 | :---------- | :-----------------  | :------------- | :------ |
 | Monday      |  2:00 PM -  3:30 PM | Krisha         | DSI 213 |
 | Tuesday     | 11:00 AM - 12:30 PM | Danni          | JCL 207 |
-| Tuesday     |  2:00 PM -  3:30 PM | Alex           | DSI 313 |
+| Tuesday     |  2:00 PM -  4:00 PM | Alex           | DSI 313 |
+| Thursday    | 10:00 AM - 11:00 AM | Alex           | DSI 313 |
 | Thursday    | 11:00 AM - 12:30 PM | Danni          | JCL 207 |
-| Thursday    |  2:00 PM -  3:30 PM | Alex           | DSI 313 |
 | Friday      |  3:30 PM -  5:00 PM | Krisha         | [Zoom](https://uchicago.zoom.us/j/92556229083?pwd=1vp5fL97KypbkTGPHt6E08gsLkePCH.1) |
 
 **Office hours begin on September 29 and end on December 5.**
 
 Due to conference travel, **Alex will be unavailable November 2-7**. Because of this, we will use scheduled class time for project check-ins with the TAs on November 4 and 6.
+
+Additionally, **we will not hold office hours the week of Thanksgiving break, November 24-28**.
 
 ### Materials, turn-in, and gradebook
 
