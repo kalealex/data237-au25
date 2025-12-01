@@ -67,7 +67,6 @@ Here are the reading resources for the course separated by the topics we study e
 
 #### Accessibility
 - [Accessible Visualization via Natural Language Descriptions: A Four-Level Model of Semantic Content, Chartability](https://vis.csail.mit.edu/pubs/vis-text-model/)
-- ["They Aren't Built For Me": An Exploratory Study of Strategies for Measurement of Graphical Primitives in Tactile Graphics](https://arxiv.org/abs/2508.14289)
 
 ### Week 8: Rhetorical visualization
 #### Persuasive visualization
@@ -87,4 +86,3 @@ Here are the reading resources for the course separated by the topics we study e
 - Interpretability by proxy using [LIME](https://arxiv.org/pdf/1602.04938).
 - Interpretability by marginal feature importance using [SHAP](https://arxiv.org/pdf/1705.07874).
 - A brief write up about [Microsoft's interpretML](https://arxiv.org/pdf/1909.09223).
-
